@@ -22,6 +22,8 @@ from pathlib import Path
 
 # Imports de NLTK com fallback
 try:
+    import nltk
+    from nltk.data import find
     from nltk.stem import RSLPStemmer
     stemmer_available = True
 except ImportError:
@@ -37,7 +39,19 @@ class AdvancedNLPEngine:
         
         # Inicializa stemmer se disponível
         if stemmer_available:
-            self.stemmer = RSLPStemmer()
+            try:
+                find("stemmers/rslp/step0.pt")
+            except LookupError:
+                try:
+                    nltk.download("rslp", quiet=True)
+                except Exception:
+                    pass
+
+            try:
+                self.stemmer = RSLPStemmer()
+            except LookupError:
+                self.stemmer = None
+                print("⚠️ RSLP nao encontrado. Lemmatizacao limitada.")
         else:
             self.stemmer = None
             
